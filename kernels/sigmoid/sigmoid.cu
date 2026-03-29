@@ -29,7 +29,7 @@ __global__ void sigmoid_f32_kernel(float *x, float *y, int N) {
   if (idx < N) {
     float v = x[idx];
     v = fminf(fmaxf(v, MIN_EXP_F32), MAX_EXP_F32);
-    y[idx] = 1.0f / (1.0f + expf(-v));
+    y[idx] = 1.0f / (1.0f + __expf(-v));
   }
 }
 
@@ -37,21 +37,24 @@ __global__ void sigmoid_f32_kernel(float *x, float *y, int N) {
 // grid(N/256), block(256/4)
 __global__ void sigmoid_f32x4_kernel(float *x, float *y, int N) {
   int idx = (blockIdx.x * blockDim.x + threadIdx.x) * 4;
-  float4 reg_x = FLOAT4(x[idx]);
-  float4 reg_y;
-
-  reg_x.x = fminf(fmaxf(reg_x.x, MIN_EXP_F32), MAX_EXP_F32);
-  reg_x.y = fminf(fmaxf(reg_x.y, MIN_EXP_F32), MAX_EXP_F32);
-  reg_x.z = fminf(fmaxf(reg_x.z, MIN_EXP_F32), MAX_EXP_F32);
-  reg_x.w = fminf(fmaxf(reg_x.w, MIN_EXP_F32), MAX_EXP_F32);
-
-  reg_y.x = 1.0f / (1.0f + expf(-reg_x.x));
-  reg_y.y = 1.0f / (1.0f + expf(-reg_x.y));
-  reg_y.z = 1.0f / (1.0f + expf(-reg_x.z));
-  reg_y.w = 1.0f / (1.0f + expf(-reg_x.w));
-
-  if ((idx + 0) < N) {
+  if (idx + 3 < N) {
+    float4 reg_x = FLOAT4(x[idx]);
+    reg_x.x = fminf(fmaxf(reg_x.x, MIN_EXP_F32), MAX_EXP_F32);
+    reg_x.y = fminf(fmaxf(reg_x.y, MIN_EXP_F32), MAX_EXP_F32);
+    reg_x.z = fminf(fmaxf(reg_x.z, MIN_EXP_F32), MAX_EXP_F32);
+    reg_x.w = fminf(fmaxf(reg_x.w, MIN_EXP_F32), MAX_EXP_F32);
+    float4 reg_y;
+    reg_y.x = 1.0f / (1.0f + __expf(-reg_x.x));
+    reg_y.y = 1.0f / (1.0f + __expf(-reg_x.y));
+    reg_y.z = 1.0f / (1.0f + __expf(-reg_x.z));
+    reg_y.w = 1.0f / (1.0f + __expf(-reg_x.w));
     FLOAT4(y[idx]) = reg_y;
+  } else {
+    for (int i = idx; i < N; ++i) {
+      float v = x[i];
+      v = fminf(fmaxf(v, MIN_EXP_F32), MAX_EXP_F32);
+      y[i] = 1.0f / (1.0f + __expf(-v));
+    }
   }
 }
 
@@ -68,61 +71,49 @@ __global__ void sigmoid_f16_kernel(half *x, half *y, int N) {
 
 __global__ void sigmoid_f16x2_kernel(half *x, half *y, int N) {
   int idx = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
-  const half f = __float2half(1.0f);
-  half2 reg_x = HALF2(x[idx]);
-  half2 reg_y;
-  reg_x.x = __hmin(__hmax(reg_x.x, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x.y = __hmin(__hmax(reg_x.y, MIN_EXP_F16), MAX_EXP_F16);
-
-  reg_y.x = f / (f + hexp(-reg_x.x));
-  reg_y.y = f / (f + hexp(-reg_x.y));
-
-  if ((idx + 0) < N) {
+  const half2 one2 = __float2half2_rn(1.0f);
+  const half2 min2 = __halves2half2(MIN_EXP_F16, MIN_EXP_F16);
+  const half2 max2 = __halves2half2(MAX_EXP_F16, MAX_EXP_F16);
+  if (idx + 1 < N) {
+    half2 reg_x = HALF2(x[idx]);
+    reg_x = __hmin2(__hmax2(reg_x, min2), max2);
+    half2 reg_y = __h2div(one2, __hadd2(one2, h2exp(__hneg2(reg_x))));
     HALF2(y[idx]) = reg_y;
+  } else {
+    const half f = __float2half(1.0f);
+    for (int i = idx; i < N; ++i) {
+      half v = __hmin(__hmax(x[i], MIN_EXP_F16), MAX_EXP_F16);
+      y[i] = __hdiv(f, __hadd(f, hexp(__hneg(v))));
+    }
   }
 }
 
 // unpack f16x8
 __global__ void sigmoid_f16x8_kernel(half *x, half *y, int N) {
   int idx = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
-  const half f = __float2half(1.0f);
+  const half2 one2 = __float2half2_rn(1.0f);
+  const half2 min2 = __halves2half2(MIN_EXP_F16, MIN_EXP_F16);
+  const half2 max2 = __halves2half2(MAX_EXP_F16, MAX_EXP_F16);
 
-  half2 reg_x_0 = HALF2(x[idx + 0]);
-  half2 reg_x_1 = HALF2(x[idx + 2]);
-  half2 reg_x_2 = HALF2(x[idx + 4]);
-  half2 reg_x_3 = HALF2(x[idx + 6]);
-
-  reg_x_0.x = __hmin(__hmax(reg_x_0.x, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_0.y = __hmin(__hmax(reg_x_0.y, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_1.x = __hmin(__hmax(reg_x_1.x, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_1.y = __hmin(__hmax(reg_x_1.y, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_2.x = __hmin(__hmax(reg_x_2.x, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_2.y = __hmin(__hmax(reg_x_2.y, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_3.x = __hmin(__hmax(reg_x_3.x, MIN_EXP_F16), MAX_EXP_F16);
-  reg_x_3.y = __hmin(__hmax(reg_x_3.y, MIN_EXP_F16), MAX_EXP_F16);
-
-  half2 reg_y_0, reg_y_1, reg_y_2, reg_y_3;
-
-  reg_y_0.x = f / (f + hexp(-reg_x_0.x));
-  reg_y_0.y = f / (f + hexp(-reg_x_0.y));
-  reg_y_1.x = f / (f + hexp(-reg_x_1.x));
-  reg_y_1.y = f / (f + hexp(-reg_x_1.y));
-  reg_y_2.x = f / (f + hexp(-reg_x_2.x));
-  reg_y_2.y = f / (f + hexp(-reg_x_2.y));
-  reg_y_3.x = f / (f + hexp(-reg_x_3.x));
-  reg_y_3.y = f / (f + hexp(-reg_x_3.y));
-
-  if ((idx + 0) < N) {
-    HALF2(y[idx + 0]) = reg_y_0;
-  }
-  if ((idx + 2) < N) {
-    HALF2(y[idx + 2]) = reg_y_1;
-  }
-  if ((idx + 4) < N) {
-    HALF2(y[idx + 4]) = reg_y_2;
-  }
-  if ((idx + 6) < N) {
-    HALF2(y[idx + 6]) = reg_y_3;
+  if (idx + 7 < N) {
+    half2 reg_x_0 = HALF2(x[idx + 0]);
+    half2 reg_x_1 = HALF2(x[idx + 2]);
+    half2 reg_x_2 = HALF2(x[idx + 4]);
+    half2 reg_x_3 = HALF2(x[idx + 6]);
+    reg_x_0 = __hmin2(__hmax2(reg_x_0, min2), max2);
+    reg_x_1 = __hmin2(__hmax2(reg_x_1, min2), max2);
+    reg_x_2 = __hmin2(__hmax2(reg_x_2, min2), max2);
+    reg_x_3 = __hmin2(__hmax2(reg_x_3, min2), max2);
+    HALF2(y[idx + 0]) = __h2div(one2, __hadd2(one2, h2exp(__hneg2(reg_x_0))));
+    HALF2(y[idx + 2]) = __h2div(one2, __hadd2(one2, h2exp(__hneg2(reg_x_1))));
+    HALF2(y[idx + 4]) = __h2div(one2, __hadd2(one2, h2exp(__hneg2(reg_x_2))));
+    HALF2(y[idx + 6]) = __h2div(one2, __hadd2(one2, h2exp(__hneg2(reg_x_3))));
+  } else if (idx < N) {
+    const half f = __float2half(1.0f);
+    for (int i = idx; i < N; ++i) {
+      half v = __hmin(__hmax(x[i], MIN_EXP_F16), MAX_EXP_F16);
+      y[i] = __hdiv(f, __hadd(f, hexp(__hneg(v))));
+    }
   }
 }
 
@@ -130,19 +121,21 @@ __global__ void sigmoid_f16x8_kernel(half *x, half *y, int N) {
 __global__ void sigmoid_f16x8_pack_kernel(half *x, half *y, int N) {
   int idx = (blockIdx.x * blockDim.x + threadIdx.x) * 8;
   const half f = __float2half(1.0f);
-  // temporary register(memory), .local space in ptx, addressable
-  half pack_x[8], pack_y[8]; // 8x16 bits=128 bits.
-  // reinterpret as float4 and load 128 bits in 1 memory issue.
-  LDST128BITS(pack_x[0]) = LDST128BITS(x[idx]); // load 128 bits
+  if (idx + 7 < N) {
+    half pack_x[8], pack_y[8];
+    LDST128BITS(pack_x[0]) = LDST128BITS(x[idx]);
 
 #pragma unroll
-  for (int i = 0; i < 8; ++i) {
-    half v = __hmin(__hmax(pack_x[i], MIN_EXP_F16), MAX_EXP_F16);
-    pack_y[i] = f / (f + hexp(-v));
-  }
-  // reinterpret as float4 and store 128 bits in 1 memory issue.
-  if ((idx + 7) < N) {
+    for (int i = 0; i < 8; ++i) {
+      half v = __hmin(__hmax(pack_x[i], MIN_EXP_F16), MAX_EXP_F16);
+      pack_y[i] = __hdiv(f, __hadd(f, hexp(__hneg(v))));
+    }
     LDST128BITS(y[idx]) = LDST128BITS(pack_y[0]);
+  } else if (idx < N) {
+    for (int i = 0; idx + i < N; ++i) {
+      half v = __hmin(__hmax(x[idx + i], MIN_EXP_F16), MAX_EXP_F16);
+      y[idx + i] = __hdiv(f, __hadd(f, hexp(__hneg(v))));
+    }
   }
 }
 
