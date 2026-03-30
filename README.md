@@ -237,12 +237,12 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | ✔️ [relu_f16x2](./kernels/relu/relu.cu)|f16|/|[link](./kernels/relu/)|⭐️| done | 
 | ✔️ [relu_f16x8](./kernels/relu/relu.cu)|f16|/|[link](./kernels/relu/)|⭐️| done | 
 | ✔️ [relu_f16x8_pack](./kernels/relu/relu.cu)|f16|/|[link](./kernels/relu/)|⭐️⭐️| done |
-| ✔️ [elu_f32](./kernels/elu/elu.cu)|f32|/|[link](./kernels/elu/)|⭐️|
-| ✔️ [elu_f32x4](./kernels/elu/elu.cu)|f32|/|[link](./kernels/elu/)|⭐️|
-| ✔️ [elu_f16](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️|
-| ✔️ [elu_f16x2](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️|
-| ✔️ [elu_f16x8](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️|
-| ✔️ [elu_f16x8_pack](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️⭐️|
+| ✔️ [elu_f32](./kernels/elu/elu.cu)|f32|/|[link](./kernels/elu/)|⭐️| done |
+| ✔️ [elu_f32x4](./kernels/elu/elu.cu)|f32|/|[link](./kernels/elu/)|⭐️| done |
+| ✔️ [elu_f16](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️| done |
+| ✔️ [elu_f16x2](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️| done |
+| ✔️ [elu_f16x8](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️| done |
+| ✔️ [elu_f16x8_pack](./kernels/elu/elu.cu)|f16|/|[link](./kernels/elu/)|⭐️⭐️| done |
 | ✔️ [gelu_f32](./kernels/gelu/gelu.cu)|f32|/|[link](./kernels/gelu/)|⭐️|
 | ✔️ [gelu_f32x4](./kernels/gelu/gelu.cu)|f32|/|[link](./kernels/gelu/)|⭐️|
 | ✔️ [gelu_f16](./kernels/gelu/gelu.cu)|f16|/|[link](./kernels/gelu/)|⭐️|
