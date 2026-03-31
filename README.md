@@ -255,12 +255,12 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | ✔️ [swish_f16x2](./kernels/swish/swish.cu)|f16|/|[link](./kernels/swish/)|⭐️| done |
 | ✔️ [swish_f16x8](./kernels/swish/swish.cu)|f16|/|[link](./kernels/swish/)|⭐️| done |
 | ✔️ [swish_f16x8_pack](./kernels/swish/swish.cu)|f16|/|[link](./kernels/swish/)|⭐️⭐️| done |
-| ✔️ [hardswish_f32](./kernels/hardswish/hardswish.cu)|f32|/|[link](./kernels/hardswish/)|⭐️|
-| ✔️ [hardswish_f32x4](./kernels/hardswish/hardswish.cu)|f32|/|[link](./kernels/hardswish/)|⭐️|
-| ✔️ [hardswish_f16](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|
-| ✔️ [hardswish_f16x2](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|
-| ✔️ [hardswish_f16x8](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|
-| ✔️ [hardswish_f16x8_pack](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️⭐️|
+| ✔️ [hardswish_f32](./kernels/hardswish/hardswish.cu)|f32|/|[link](./kernels/hardswish/)|⭐️|done |
+| ✔️ [hardswish_f32x4](./kernels/hardswish/hardswish.cu)|f32|/|[link](./kernels/hardswish/)|⭐️|done |
+| ✔️ [hardswish_f16](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|done |
+| ✔️ [hardswish_f16x2](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|done |
+| ✔️ [hardswish_f16x8](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|done |
+| ✔️ [hardswish_f16x8_pack](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️⭐️| done |
 | ✔️ [hardshrink_f32](./kernels/hardshrink/hardshrink.cu)|f32|/|[link](./kernels/hardshrink/)|⭐️|
 | ✔️ [hardshrink_f32x4](./kernels/hardshrink/hardshrink.cu)|f32|/|[link](./kernels/hardshrink/)|⭐️|
 | ✔️ [hardshrink_f16](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️|
@@ -472,8 +472,8 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 
 ### 📚 高性能计算与分布式-个人技术专栏 ([©️back👆🏻](#contents))
 
-|📖 类型-标题|📖 作者| 📖 推荐 |
-|:---|:---|:---|
+|📖 类型-标题|📖 作者| 📖 推荐 |📖 Status | 
+|:---|:---|:---|:---|
 | [[Diffusion推理]📖简短的2025年总结，写在Cache-DiT v1.2.1之际](https://zhuanlan.zhihu.com/p/2001692370358539662)|@DefTruth|⭐️⭐️|
 | [[Diffusion推理]📖CacheDiT支持Z-Image分布式推理和缓存加速​​](https://zhuanlan.zhihu.com/p/1978490962742374735)|@DefTruth|⭐️⭐️|
 | [[Diffusion推理]📖cache-dit支持FLUX.2分布式推理和Cache](https://zhuanlan.zhihu.com/p/1977698505834379041)|@DefTruth|⭐️⭐️|
@@ -493,7 +493,7 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | [[vLLM实践][算子]📖vLLM算子开发流程：”保姆级“详细记录](https://zhuanlan.zhihu.com/p/1892966682634473987)|@DefTruth|⭐️⭐️⭐|
 | [[vLLM实践][万字]📖vLLM + DeepSeek-R1 671B 多机部署及修Bug笔记](https://zhuanlan.zhihu.com/p/29950052712)|@DefTruth|⭐️⭐️⭐|
 | [[Attention优化]📖FFPA(Split-D): FA2无限HeadDim扩展，2x↑🎉 vs SDPA EA](https://zhuanlan.zhihu.com/p/13975660308)|@DefTruth|⭐️⭐️⭐️|
-| [[CUDA基础][开篇]📖LeetCUDA: v3.0 大升级-面试刷题不迷路](https://zhuanlan.zhihu.com/p/19862356369)|@DefTruth|⭐️⭐️⭐⭐️|
+| [[CUDA基础][开篇]📖LeetCUDA: v3.0 大升级-面试刷题不迷路](https://zhuanlan.zhihu.com/p/19862356369)|@DefTruth|⭐️⭐️⭐⭐️| done |
 | [[分布式训推][张量/序列并行]📖图解DeepSpeed-Ulysses&Megatron-LM TP/SP](https://zhuanlan.zhihu.com/p/5750410146)|@DefTruth|⭐️⭐️|
 | [[VLM推理优化][InternVL系列]📖InternLM2/.../InternVL1.5系列笔记: 核心点解析](https://zhuanlan.zhihu.com/p/702481058)|@DefTruth|⭐️⭐️|
 | [[LLM推理优化][TensorRT-LLM][5w字]📖TensorRT-LLM部署调优-指北](https://zhuanlan.zhihu.com/p/699333691)|@DefTruth|⭐️⭐️⭐️|
@@ -505,7 +505,7 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | [[LLM推理优化][Attention优化][万字]📖TensorRT MHA/Myelin vs FlashAttention-2](https://zhuanlan.zhihu.com/p/678873216)|@DefTruth|⭐️⭐️⭐️|
 | [[LLM推理优化][PTX汇编]📖CUDA 12 PTX汇编: PRMT指令详解-通用模式](https://zhuanlan.zhihu.com/p/660630414)|@DefTruth|⭐️|
 | [[LLM推理优化][PTX汇编]📖CUDA 12 PTX汇编: LOP3指令详解](https://zhuanlan.zhihu.com/p/659741469)|@DefTruth|⭐️|
-| [[LLM推理优化][CUDA][3w字]📖高频面试题汇总-大模型手撕CUDA](https://zhuanlan.zhihu.com/p/678903537)|@DefTruth|⭐️⭐️⭐️|
+| [[LLM推理优化][CUDA][3w字]📖高频面试题汇总-大模型手撕CUDA](https://zhuanlan.zhihu.com/p/678903537)|@DefTruth|⭐️⭐️⭐️| done |
 | [[LLM推理优化][Weight Only]📖WINT8/4-(00): 通俗易懂讲解-快速反量化算法](https://zhuanlan.zhihu.com/p/657072856)|@DefTruth|⭐️⭐️|
 | [[LLM推理优化][Weight Only]📖WINT8/4-(01): PRMT指令详解及FT源码解析](https://zhuanlan.zhihu.com/p/657070837)|@DefTruth|⭐️⭐️|
 | [[LLM推理优化][Weight Only]📖WINT8/4-(02): 快速反量化之INT8转BF16](https://zhuanlan.zhihu.com/p/657073159)|@DefTruth|⭐️⭐️|
@@ -567,8 +567,8 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 
 💡说明: 本小节整理一些自己比较喜欢的文章。欢迎大家提PR推荐更多优秀的文章！
 
-|📖 类型-标题|📖 作者| 📖 推荐 |
-|:---|:---|:---|
+|📖 类型-标题|📖 作者| 📖 推荐 | 📖 Status |
+|:---|:---|:---|:---|
 | [[cute系列详解][入门]📖cutlass cute 101](https://zhuanlan.zhihu.com/p/660379052)|@朱小霖|⭐️⭐️⭐️|
 | [[cute系列详解][入门]📖CUTLASS 2.x & CUTLASS 3.x Intro 学习笔记](https://zhuanlan.zhihu.com/p/710516489)|@BBuf|⭐️⭐️⭐️|
 | [[cute系列详解][入门]📖写给大家看的 CuTe 教程：tiled copy](https://zhuanlan.zhihu.com/p/1930389542784964333)|@竹熙佳处|⭐️⭐️⭐️|
@@ -608,13 +608,13 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | [[cutlass教程][深入]📖cutlass block swizzle 和 tile iterator](https://zhuanlan.zhihu.com/p/679929705)|@JoeNomad|⭐️⭐️⭐️|
 | [[cutlass教程][深入]📖cutlass bank conflict free的smem layout](https://zhuanlan.zhihu.com/p/681966685)|@JoeNomad|⭐️⭐️⭐️|
 | [[cutlass教程][深入]📖cutlass 多级流水线](https://zhuanlan.zhihu.com/p/687397095)|@JoeNomad|⭐️⭐️⭐️|
-| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-前言](https://zhuanlan.zhihu.com/p/686198447)|@reed|⭐️⭐️⭐️|
-| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-寄存器](https://zhuanlan.zhihu.com/p/688616037)|@reed|⭐️⭐️⭐️|
-| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-Load和Cache](https://zhuanlan.zhihu.com/p/692445145)|@reed|⭐️⭐️⭐️|
-| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-浮点运算](https://zhuanlan.zhihu.com/p/695667044)|@reed|⭐️⭐️⭐️|
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-前言](https://zhuanlan.zhihu.com/p/686198447)|@reed|⭐️⭐️⭐️| done |
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-寄存器](https://zhuanlan.zhihu.com/p/688616037)|@reed|⭐️⭐️⭐️| done |
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-Load和Cache](https://zhuanlan.zhihu.com/p/692445145)|@reed|⭐️⭐️⭐️| done |
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-浮点运算](https://zhuanlan.zhihu.com/p/695667044)|@reed|⭐️⭐️⭐️| done |
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-整数运算](https://zhuanlan.zhihu.com/p/700921948)|@reed|⭐️⭐️⭐️|
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-比特和逻辑操作](https://zhuanlan.zhihu.com/p/712356884)|@reed|⭐️⭐️⭐️|
-| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-Warp级和Uniform操作](https://zhuanlan.zhihu.com/p/712357647)|@reed|⭐️⭐️⭐️|
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-Warp级和Uniform操作](https://zhuanlan.zhihu.com/p/712357647)|@reed|⭐️⭐️⭐️| done |
 | [[CUDA优化][入门]📖CUDA 入门的正确姿势：how-to-optimize-gemm](https://zhuanlan.zhihu.com/p/478846788)|@白牛|⭐️⭐️⭐️|
 | [[CUDA优化][入门]📖CUDA（一）：CUDA 编程基础](https://zhuanlan.zhihu.com/p/645330027)|@紫气东来|⭐️⭐️⭐️|
 | [[CUDA优化][入门]📖CUDA（二）：GPU的内存体系及其优化指南](https://zhuanlan.zhihu.com/p/654027980)|@紫气东来|⭐️⭐️⭐️|

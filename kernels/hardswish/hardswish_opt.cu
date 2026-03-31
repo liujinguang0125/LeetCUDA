@@ -31,13 +31,11 @@
 
 // FP32: 用乘法替代除法 (1/6 = 0.16666667f)
 __device__ __forceinline__ float hardswish(float x) {
-  if (x >= 3.0f) {
-    return x;
-  } else if (x <= -3.0f) {
-    return 0.f;
-  } else {
-    return x * (x + 3.0f) * 0.16666667f;
-  }
+  float x_plus_3 = x + 3.0f;
+
+  float relu6 = fmin(fmax(x_plus_3, 0.0f), 6.0f);
+
+  return x * relu6 * 0.16666667f;
 }
 
 // FP16: 用 __hmul 替代 __hdiv，预算 1/6
@@ -45,13 +43,24 @@ __device__ __forceinline__ half hardswish_half(half x) {
   const half three = __float2half(3.f);
   const half inv6 = __float2half(0.16666667f);
   const half zero = __float2half(0.f);
-  if (__hgt(x, three)) {
-    return x;
-  } else if (__hlt(x, __hneg(three))) {
-    return zero;
-  } else {
-    return __hmul(__hmul(x, __hadd(x, three)), inv6);
-  }
+  const half six = __float2half(6.f);
+
+  half x_plus_3 = __hadd(x, three);
+  half relu6 = __hmin(__hmax(x_plus_3, zero), six);
+
+  return __hmul(__hmul(x, relu6), inv6);
+}
+
+__device__ __forceinline__ half2 hardswish_half2(half2 x) {
+  const half2 three = __float2half2_rn(3.f);
+  const half2 inv6 = __float2half2_rn(0.16666667f);
+  const half2 zero = __float2half2_rn(0.f);
+  const half2 six = __float2half2_rn(6.f);
+
+  half2 x_plus_3 = __hadd2(x, three);
+  half2 relu6 = __hmin2(__hmax2(x_plus_3, zero), six);
+
+  return __hmul2(__hmul2(x, relu6), inv6);
 }
 
 // FP32
@@ -93,10 +102,7 @@ __global__ void hardswish_f16x2_kernel(half *__restrict__ x,
   int idx = 2 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 1 < N) {
     half2 reg_x = HALF2(x[idx]);
-    half2 reg_y;
-    reg_y.x = hardswish_half(reg_x.x);
-    reg_y.y = hardswish_half(reg_x.y);
-    HALF2(y[idx]) = reg_y;
+    HALF2(y[idx]) = hardswish_half2(reg_x);
   } else if (idx < N) {
     y[idx] = hardswish_half(x[idx]);
   }
@@ -110,19 +116,10 @@ __global__ void hardswish_f16x8_kernel(half *__restrict__ x,
     half2 reg_x_1 = HALF2(x[idx + 2]);
     half2 reg_x_2 = HALF2(x[idx + 4]);
     half2 reg_x_3 = HALF2(x[idx + 6]);
-    half2 reg_y_0, reg_y_1, reg_y_2, reg_y_3;
-    reg_y_0.x = hardswish_half(reg_x_0.x);
-    reg_y_0.y = hardswish_half(reg_x_0.y);
-    reg_y_1.x = hardswish_half(reg_x_1.x);
-    reg_y_1.y = hardswish_half(reg_x_1.y);
-    reg_y_2.x = hardswish_half(reg_x_2.x);
-    reg_y_2.y = hardswish_half(reg_x_2.y);
-    reg_y_3.x = hardswish_half(reg_x_3.x);
-    reg_y_3.y = hardswish_half(reg_x_3.y);
-    HALF2(y[idx + 0]) = reg_y_0;
-    HALF2(y[idx + 2]) = reg_y_1;
-    HALF2(y[idx + 4]) = reg_y_2;
-    HALF2(y[idx + 6]) = reg_y_3;
+    HALF2(y[idx + 0]) = hardswish_half2(reg_x_0);
+    HALF2(y[idx + 2]) = hardswish_half2(reg_x_1);
+    HALF2(y[idx + 4]) = hardswish_half2(reg_x_2);
+    HALF2(y[idx + 6]) = hardswish_half2(reg_x_3);
   } else if (idx < N) {
     for (int i = idx; i < N; ++i) {
       y[i] = hardswish_half(x[i]);
@@ -134,12 +131,12 @@ __global__ void hardswish_f16x8_pack_kernel(half *__restrict__ x,
                                             half *__restrict__ y, int N) {
   int idx = 8 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 7 < N) {
-    half pack_x[8], pack_y[8];
+    half2 pack_x[4], pack_y[4];
     LDST128BITS(pack_x[0]) = LDST128BITS(x[idx]);
 
 #pragma unroll
-    for (int i = 0; i < 8; ++i) {
-      pack_y[i] = hardswish_half(pack_x[i]);
+    for (int i = 0; i < 4; ++i) {
+      pack_y[i] = hardswish_half2(pack_x[i]);
     }
     LDST128BITS(y[idx]) = LDST128BITS(pack_y[0]);
   } else if (idx < N) {
