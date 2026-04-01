@@ -33,20 +33,21 @@
 // HARDSHRINK 计算函数
 // FP32
 __device__ __forceinline__ float hardshrink(float x) {
-  if (x > LAMBD || x < -LAMBD) {
-    return x;
-  } else {
-    return 0;
-  }
+  return x * ((float)(fabsf(x) > LAMBD));
 }
 
 // FP16
 __device__ __forceinline__ half hardshrink_half(half x) {
-  if (x > __float2half(LAMBD) || x < __float2half(-LAMBD)) {
-    return x;
-  } else {
-    return __float2half(0.f);
-  }
+  return __hmul(x, __float2half((float)(__hgt(__habs(x), __float2half(LAMBD)))));
+}
+
+__device__ __forceinline__ half2 hardshrink_half2(half2 x) {
+  half2 lambda2 = __float2half2_rn(LAMBD);
+
+  half2 abs_x2 = __habs2(x);
+  half2 mask_x2 = __hgt2(abs_x2, lambda2);
+
+  return __hmul2(mask_x2, x);
 }
 
 // CUDA 核函数
@@ -85,31 +86,26 @@ __global__ void hardshrink_f16x2_kernel(half *x, half *y, int N) {
   int idx = 2 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 1 < N) {
     half2 reg_x = HALF2(x[idx]);
-    half2 reg_y;
-    reg_y.x = hardshrink_half(reg_x.x);
-    reg_y.y = hardshrink_half(reg_x.y);
-    HALF2(y[idx]) = reg_y;
+    // half2 reg_y;
+    // reg_y.x = hardshrink_half(reg_x.x);
+    // reg_y.y = hardshrink_half(reg_x.y);
+    HALF2(y[idx]) = hardshrink_half2(reg_x);
   } else if (idx < N) {
     y[idx] = hardshrink_half(x[idx]);
   }
 }
 
-__global__ void hardshrink_f16x8_kernel(half *x, half *y, int N) {
+__global__ void hardshrink_f16x8_kernel(half __restrict__ *x, half __restrict__ *y, int N) {
   int idx = 8 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 7 < N) {
     half2 reg_x_0 = HALF2(x[idx + 0]);
     half2 reg_x_1 = HALF2(x[idx + 2]);
     half2 reg_x_2 = HALF2(x[idx + 4]);
     half2 reg_x_3 = HALF2(x[idx + 6]);
-    half2 reg_y_0, reg_y_1, reg_y_2, reg_y_3;
-    reg_y_0.x = hardshrink_half(reg_x_0.x);
-    reg_y_0.y = hardshrink_half(reg_x_0.y);
-    reg_y_1.x = hardshrink_half(reg_x_1.x);
-    reg_y_1.y = hardshrink_half(reg_x_1.y);
-    reg_y_2.x = hardshrink_half(reg_x_2.x);
-    reg_y_2.y = hardshrink_half(reg_x_2.y);
-    reg_y_3.x = hardshrink_half(reg_x_3.x);
-    reg_y_3.y = hardshrink_half(reg_x_3.y);
+    half2 reg_y_0 = hardshrink_half2(reg_x_0);
+    half2 reg_y_1 = hardshrink_half2(reg_x_1);
+    half2 reg_y_2 = hardshrink_half2(reg_x_2);
+    half2 reg_y_3 = hardshrink_half2(reg_x_3);
     HALF2(y[idx + 0]) = reg_y_0;
     HALF2(y[idx + 2]) = reg_y_1;
     HALF2(y[idx + 4]) = reg_y_2;
@@ -121,14 +117,14 @@ __global__ void hardshrink_f16x8_kernel(half *x, half *y, int N) {
   }
 }
 
-__global__ void hardshrink_f16x8_pack_kernel(half *x, half *y, int N) {
+__global__ void hardshrink_f16x8_pack_kernel(half __restrict__ *x, half __restrict__ *y, int N) {
   int idx = 8 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 7 < N) {
-    half pack_x[8], pack_y[8];
+    half2 pack_x[4], pack_y[4];
     LDST128BITS(pack_x[0]) = LDST128BITS(x[idx]);
 #pragma unroll
-    for (int i = 0; i < 8; i++) {
-      pack_y[i] = hardshrink_half(pack_x[i]);
+    for (int i = 0; i < 4; i++) {
+      HALF2(pack_y[i]) = hardshrink_half2(HALF2(pack_x[i]));
     }
     LDST128BITS(y[idx]) = LDST128BITS(pack_y[0]);
   } else if (idx < N) {

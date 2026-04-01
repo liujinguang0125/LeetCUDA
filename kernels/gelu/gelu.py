@@ -9,10 +9,43 @@ from torch.utils.cpp_extension import load
 
 torch.set_grad_enabled(False)
 
+GPU_NAME = torch.cuda.get_device_name(0)
+GPU_FP32_PEAK_TFLOPS = {
+    "Tesla T4": 8.1,
+    "Tesla V100-SXM2-16GB": 15.7,
+    "Tesla V100-SXM2-32GB": 15.7,
+    "Tesla A100-SXM4-40GB": 19.5,
+    "Tesla A100-SXM4-80GB": 19.5,
+    "NVIDIA A100-SXM4-80GB": 19.5,
+    "NVIDIA A100-PCIE-40GB": 19.5,
+    "NVIDIA A800-SXM4-80GB": 19.5,
+    "NVIDIA H100": 67.0,
+    "NVIDIA H800": 67.0,
+    "NVIDIA GeForce RTX 3090": 35.6,
+    "NVIDIA GeForce RTX 4090": 82.6,
+}.get(GPU_NAME, 0)
+GPU_FP16_PEAK_TFLOPS = GPU_FP32_PEAK_TFLOPS * 2
+GPU_BW_GB_S = {
+    "Tesla T4": 320,
+    "Tesla V100-SXM2-16GB": 900,
+    "Tesla V100-SXM2-32GB": 900,
+    "Tesla A100-SXM4-40GB": 2039,
+    "Tesla A100-SXM4-80GB": 2039,
+    "NVIDIA A100-SXM4-80GB": 2039,
+    "NVIDIA A100-PCIE-40GB": 1555,
+    "NVIDIA A800-SXM4-80GB": 2039,
+    "NVIDIA H100": 3350,
+    "NVIDIA H800": 3350,
+    "NVIDIA GeForce RTX 3090": 936,
+    "NVIDIA GeForce RTX 4090": 1008,
+}.get(GPU_NAME, 0)
+
+GELU_FLOPS_PER_ELEMENT = 14
+
 # Load the CUDA kernel as a python module
 lib = load(
     name="gelu_lib",
-    sources=["gelu_opt.cu"],
+    sources=["gelu.cu"],
     extra_cuda_cflags=[
         "-O3",
         "-U__CUDA_NO_HALF_OPERATORS__",
@@ -68,10 +101,25 @@ def run_benchmark(
     total_time = (end - start) * 1000  # ms
     mean_time = total_time / iters
     out_info = f"out_{tag}"
-    out_val = out.flatten().detach().cpu().numpy().tolist()[:2]
-    # out_val = [round(v, 8) for v in out_val]
-    # print(f"{out_info:>18}: {out_val}, time:{mean_time:.8f}ms")
-    print(f"{out_info:>18}: time: {mean_time:.8f}ms")
+
+    numel = x.numel()
+    dtype_bytes = x.element_size()
+    is_f16 = dtype_bytes == 2
+
+    total_bytes = numel * dtype_bytes * 2  # read x + write y
+    bw_gb_s = total_bytes / (mean_time * 1e-3) / 1e9
+    bw_util = bw_gb_s / GPU_BW_GB_S * 100 if GPU_BW_GB_S > 0 else 0
+
+    total_flops = numel * GELU_FLOPS_PER_ELEMENT
+    tflops = total_flops / (mean_time * 1e-3) / 1e12
+    peak = GPU_FP16_PEAK_TFLOPS if is_f16 else GPU_FP32_PEAK_TFLOPS
+    compute_util = tflops / peak * 100 if peak > 0 else 0
+
+    print(
+        f"{out_info:>18}: {mean_time:.6f}ms, "
+        f"BW: {bw_gb_s:7.1f} GB/s ({bw_util:5.1f}%), "
+        f"TFLOPS: {tflops:6.3f} ({compute_util:5.1f}%)"
+    )
     if show_all:
         print(out)
     return out, mean_time
@@ -183,33 +231,38 @@ Ss = [1024, 2048, 4096]
 Ks = [1024, 2048, 4096]
 SKs = [(S, K) for S in Ss for K in Ks]
 
-# run_multi_shape_precision_suite()
+print(f"GPU: {GPU_NAME}")
+print(f"FP32 Peak: {GPU_FP32_PEAK_TFLOPS} TFLOPS, "
+      f"FP16 Peak: {GPU_FP16_PEAK_TFLOPS} TFLOPS, "
+      f"BW Peak: {GPU_BW_GB_S} GB/s")
+
+run_multi_shape_precision_suite()
 
 for S, K in SKs:
     print("-" * 85)
     print(" " * 40 + f"S={S}, K={K}")
     x = torch.randn((S, K)).cuda().float().contiguous()
     y = torch.zeros_like(x).cuda().float().contiguous()
-    # ref_f32 = torch_gelu_ref(x)
-    # _, _ = run_benchmark(lib.gelu_f32, x, "f32", y)
-    # validate_against_torch("f32", y, ref_f32, atol=1e-5, rtol=1e-5)
-    # _, _ = run_benchmark(lib.gelu_f32x4, x, "f32x4", y)
-    # validate_against_torch("f32x4", y, ref_f32, atol=1e-5, rtol=1e-5)
-    # _, _ = run_benchmark(torch_gelu_copy_, x, "f32_th", y)
-    # validate_against_torch("f32_th", y, ref_f32, atol=1e-5, rtol=1e-5)
+    ref_f32 = torch_gelu_ref(x)
+    _, _ = run_benchmark(lib.gelu_f32, x, "f32", y)
+    validate_against_torch("f32", y, ref_f32, atol=1e-5, rtol=1e-5)
+    _, _ = run_benchmark(lib.gelu_f32x4, x, "f32x4", y)
+    validate_against_torch("f32x4", y, ref_f32, atol=1e-5, rtol=1e-5)
+    _, _ = run_benchmark(torch_gelu_copy_, x, "f32_th", y)
+    validate_against_torch("f32_th", y, ref_f32, atol=1e-5, rtol=1e-5)
 
     print("-" * 85)
     x_f16 = x.half().contiguous()
     y_f16 = y.half().contiguous()
     ref_f16 = torch_gelu_ref(x_f16)
-    # _, _ = run_benchmark(lib.gelu_f16, x_f16, "f16", y_f16)
-    # validate_against_torch("f16", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
-    # _, _ = run_benchmark(lib.gelu_f16x2, x_f16, "f16x2", y_f16)
-    # validate_against_torch("f16x2", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    _, _ = run_benchmark(lib.gelu_f16, x_f16, "f16", y_f16)
+    validate_against_torch("f16", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    _, _ = run_benchmark(lib.gelu_f16x2, x_f16, "f16x2", y_f16)
+    validate_against_torch("f16x2", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
     _, _ = run_benchmark(lib.gelu_f16x8, x_f16, "f16x8", y_f16)
     validate_against_torch("f16x8", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
     _, _ = run_benchmark(lib.gelu_f16x8_pack, x_f16, "f16x8pack", y_f16)
     validate_against_torch("f16x8_pack", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
-    # _, _ = run_benchmark(torch_gelu_copy_, x_f16, "f16_th", y_f16)
-    # validate_against_torch("f16_th", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    _, _ = run_benchmark(torch_gelu_copy_, x_f16, "f16_th", y_f16)
+    validate_against_torch("f16_th", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
     print("-" * 85)

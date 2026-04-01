@@ -426,8 +426,8 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 
 - 📚 FFPA Attention MMA (**1.8x~3x**🎉faster vs SDPA EA, D > 256, FA2 not supported)
 
-|📖 CUDA Kernel| 📖 Elem DType| 📖 Acc DType| 📖 Docs | 📖 Level |
-|:---|:---|:---|:---|:---|
+|📖 CUDA Kernel| 📖 Elem DType| 📖 Acc DType| 📖 Docs | 📖 Level | 📖 Status |
+|:---|:---|:---|:---|:---|:---|
 | ✔️ [ffpa_mma_stages_split_q_L1_F16F16F16](https://github.com/xlite-dev/ffpa-attn/blob/main/csrc/cuffpa/ffpa_attn_F16F16F16_L1.cu)|f16|f16|[link](https://github.com/xlite-dev/ffpa-attn)|⭐️⭐️⭐️⭐️|
 | ✔️ [ffpa_mma_stages_split_q_L1_F16F16F32](https://github.com/xlite-dev/ffpa-attn/blob/main/csrc/cuffpa/ffpa_attn_F16F16F32_L1.cu)|f16|f32|[link](https://github.com/xlite-dev/ffpa-attn)|⭐️⭐️⭐️⭐️|
 | ✔️ [ffpa_mma_stages_split_q_L1_mixed_acc](https://github.com/xlite-dev/ffpa-attn/blob/main/csrc/cuffpa/ffpa_attn_F16F16F32_L1.cu)|f16|QK f32, PV f16|[link](https://github.com/xlite-dev/ffpa-attn)|⭐️⭐️⭐️⭐️|
@@ -444,8 +444,8 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 
 <div id="triton-kernel"></div>
 
-|📖 Triton Kernel| 📖 Elem DType| 📖 Acc DType| 📖 Docs | 📖 Level |
-|:---|:---|:---|:---|:---|
+|📖 Triton Kernel| 📖 Elem DType| 📖 Acc DType| 📖 Docs | 📖 Level | 📖 Status |
+|:---|:---|:---|:---|:---|:---|
 | ✔️ [triton_vector_add_kernel](./kernels/openai-triton/vector-add/)|all|all|[link](./kernels/openai-triton/vector-add/)|⭐️⭐️|
 | ✔️ [triton_fused_softmax(multi-stages)](./kernels/openai-triton/fused-softmax/)|f16/bf16/f32|f32|[link](./kernels/openai-triton/fused-softmax/)|⭐️⭐️⭐️|
 | ✔️ [triton_fused_layer_norm(forward-pass)](./kernels/openai-triton/layer-norm/)|f16/bf16/f32|f32|[link](./kernels/openai-triton/layer-norm/)|⭐️⭐️⭐️|
@@ -456,8 +456,8 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 
 <div id="cutlass-kernel"></div>
 
-|📖 CUTLASS/CuTe Kernel| 📖 Elem DType| 📖 Acc DType| 📖 Docs | 📖 Level |
-|:---|:---|:---|:---|:---|
+|📖 CUTLASS/CuTe Kernel| 📖 Elem DType| 📖 Acc DType| 📖 Docs | 📖 Level |📖 Status |
+|:---|:---|:---|:---|:---|:---|
 | ✔️ [mat_transpose_cute](./kernels/mat-transpose/mat_transpose_cute.cu)|f32|/|[link](./kernels/mat-transpose/)|⭐️⭐️|
 | ✔️ [flash_attn_cute(naive)](./kernels/flash-attn/cutlass/flash_attn_cute.cu)|f16|f32|[link](./kernels/flash-attn/)|⭐️⭐️⭐️|
 | ✔️ [hgemv_f16_cute_kernel](./kernels/hgemv/hgemv_cute.cu)|f16|f16|[link](./kernels/hgemv/)|⭐️⭐️⭐️|
@@ -505,7 +505,7 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | [[LLM推理优化][Attention优化][万字]📖TensorRT MHA/Myelin vs FlashAttention-2](https://zhuanlan.zhihu.com/p/678873216)|@DefTruth|⭐️⭐️⭐️|
 | [[LLM推理优化][PTX汇编]📖CUDA 12 PTX汇编: PRMT指令详解-通用模式](https://zhuanlan.zhihu.com/p/660630414)|@DefTruth|⭐️|
 | [[LLM推理优化][PTX汇编]📖CUDA 12 PTX汇编: LOP3指令详解](https://zhuanlan.zhihu.com/p/659741469)|@DefTruth|⭐️|
-| [[LLM推理优化][CUDA][3w字]📖高频面试题汇总-大模型手撕CUDA](https://zhuanlan.zhihu.com/p/678903537)|@DefTruth|⭐️⭐️⭐️| done |
+| [[LLM推理优化][CUDA][3w字]📖高频面试题汇总-大模型手撕CUDA](https://zhuanlan.zhihu.com/p/678903537)|@DefTruth|⭐️⭐️⭐️|  |
 | [[LLM推理优化][Weight Only]📖WINT8/4-(00): 通俗易懂讲解-快速反量化算法](https://zhuanlan.zhihu.com/p/657072856)|@DefTruth|⭐️⭐️|
 | [[LLM推理优化][Weight Only]📖WINT8/4-(01): PRMT指令详解及FT源码解析](https://zhuanlan.zhihu.com/p/657070837)|@DefTruth|⭐️⭐️|
 | [[LLM推理优化][Weight Only]📖WINT8/4-(02): 快速反量化之INT8转BF16](https://zhuanlan.zhihu.com/p/657073159)|@DefTruth|⭐️⭐️|
@@ -612,13 +612,14 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-寄存器](https://zhuanlan.zhihu.com/p/688616037)|@reed|⭐️⭐️⭐️| done |
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-Load和Cache](https://zhuanlan.zhihu.com/p/692445145)|@reed|⭐️⭐️⭐️| done |
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-浮点运算](https://zhuanlan.zhihu.com/p/695667044)|@reed|⭐️⭐️⭐️| done |
-| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-整数运算](https://zhuanlan.zhihu.com/p/700921948)|@reed|⭐️⭐️⭐️|
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-整数运算](https://zhuanlan.zhihu.com/p/700921948)|@reed|⭐️⭐️⭐️| done |
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-比特和逻辑操作](https://zhuanlan.zhihu.com/p/712356884)|@reed|⭐️⭐️⭐️|
 | [[GPU指令集架构][精解]📖NVidia GPU指令集架构-Warp级和Uniform操作](https://zhuanlan.zhihu.com/p/712357647)|@reed|⭐️⭐️⭐️| done |
+| [[GPU指令集架构][精解]📖NVidia GPU指令集架构-程序控制和原子操作](https://zhuanlan.zhihu.com/p/712357443)|@reed|⭐️⭐️⭐️|  |
 | [[CUDA优化][入门]📖CUDA 入门的正确姿势：how-to-optimize-gemm](https://zhuanlan.zhihu.com/p/478846788)|@白牛|⭐️⭐️⭐️|
-| [[CUDA优化][入门]📖CUDA（一）：CUDA 编程基础](https://zhuanlan.zhihu.com/p/645330027)|@紫气东来|⭐️⭐️⭐️|
-| [[CUDA优化][入门]📖CUDA（二）：GPU的内存体系及其优化指南](https://zhuanlan.zhihu.com/p/654027980)|@紫气东来|⭐️⭐️⭐️|
-| [[CUDA优化][实践]📖CUDA（三）：通用矩阵乘法：从入门到熟练](https://zhuanlan.zhihu.com/p/657632577)|@紫气东来|⭐️⭐️⭐️|
+| [[CUDA优化][入门]📖CUDA（一）：CUDA 编程基础](https://zhuanlan.zhihu.com/p/645330027)|@紫气东来|⭐️⭐️⭐️| done |
+| [[CUDA优化][入门]📖CUDA（二）：GPU的内存体系及其优化指南](https://zhuanlan.zhihu.com/p/654027980)|@紫气东来|⭐️⭐️⭐️| done |
+| [[CUDA优化][实践]📖CUDA（三）：通用矩阵乘法：从入门到熟练](https://zhuanlan.zhihu.com/p/657632577)|@紫气东来|⭐️⭐️⭐️| done |
 | [[CUDA优化][实践]📖ops(1)：LayerNorm 算子的 CUDA 实现与优化](https://zhuanlan.zhihu.com/p/694974164)|@紫气东来|⭐️⭐️⭐️|
 | [[CUDA优化][实践]📖ops(2)：SoftMax算子的 CUDA 实现](https://zhuanlan.zhihu.com/p/695307283)|@紫气东来|⭐️⭐️⭐️|
 | [[CUDA优化][实践]📖ops(3)：Cross Entropy 的 CUDA 实现](https://zhuanlan.zhihu.com/p/695594396)|@紫气东来|⭐️⭐️⭐️|
@@ -634,7 +635,7 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | [[CUDA优化][实践]📖CUDA transpose 算子详解](https://zhuanlan.zhihu.com/p/1899760505733756129)|@懒蚂蚁呀不嘿|⭐️⭐️⭐️|
 | [[CUDA优化][实践]📖CUDA reduce 算子详解](https://zhuanlan.zhihu.com/p/1905661893739283464)|@懒蚂蚁呀不嘿|⭐️⭐️⭐️|
 | [[CUDA优化][实践]📖CUDA GEMM 算子详解](https://zhuanlan.zhihu.com/p/1910636263666610461)|@懒蚂蚁呀不嘿|⭐️⭐️⭐️|
-| [[Tensor Cores]📖Nvidia Tensor Core初探](https://zhuanlan.zhihu.com/p/620185229)|@木子知|⭐️⭐️⭐️|
+| [[Tensor Cores]📖Nvidia Tensor Core初探](https://zhuanlan.zhihu.com/p/620185229)|@木子知|⭐️⭐️⭐️| done |
 | [[Tensor Cores]📖Nvidia Tensor Core-WMMA API编程入门](https://zhuanlan.zhihu.com/p/620766588)|@木子知|⭐️⭐️⭐️|
 | [[Tensor Cores]📖Nvidia Tensor Core-MMA PTX编程入门](https://zhuanlan.zhihu.com/p/621855199)|@木子知|⭐️⭐️⭐️|
 | [[Tensor Cores]📖CUDA Ampere Tensor Core HGEMM 矩阵乘法优化](https://zhuanlan.zhihu.com/p/555339335)|@nicholaswilde|⭐️⭐️⭐️|

@@ -138,19 +138,22 @@ __global__ void gelu_f16x8_kernel(half *__restrict__ x, half *__restrict__ y,
   const half2 max2 = __halves2half2(MAX_EXP_F16, MAX_EXP_F16);
 
   if (idx + 7 < N) {
-#pragma unroll
-    for (int i = 0; i < 8; i += 2) {
-      half2 reg_x = __hmin2(__hmax2(HALF2(x[idx + i]), min2), max2);
-      HALF2(y[idx + i]) = HALF2_GELU_OPS(reg_x);
-    }
-    // half2 reg_x_0 = __hmin2(__hmax2(HALF2(x[idx + 0]), min2), max2);
-    // half2 reg_x_1 = __hmin2(__hmax2(HALF2(x[idx + 2]), min2), max2);
-    // half2 reg_x_2 = __hmin2(__hmax2(HALF2(x[idx + 4]), min2), max2);
-    // half2 reg_x_3 = __hmin2(__hmax2(HALF2(x[idx + 6]), min2), max2);
-    // HALF2(y[idx + 0]) = HALF2_GELU_OPS(reg_x_0);
-    // HALF2(y[idx + 2]) = HALF2_GELU_OPS(reg_x_1);
-    // HALF2(y[idx + 4]) = HALF2_GELU_OPS(reg_x_2);
-    // HALF2(y[idx + 6]) = HALF2_GELU_OPS(reg_x_3);
+    half2 reg_x_0 = HALF2(x[idx + 0]);
+    half2 reg_x_1 = HALF2(x[idx + 2]);
+    half2 reg_x_2 = HALF2(x[idx + 4]);
+    half2 reg_x_3 = HALF2(x[idx + 6]);
+    reg_x_0 = __hmin2(__hmax2(reg_x_0, min2), max2);
+    reg_x_1 = __hmin2(__hmax2(reg_x_1, min2), max2);
+    reg_x_2 = __hmin2(__hmax2(reg_x_2, min2), max2);
+    reg_x_3 = __hmin2(__hmax2(reg_x_3, min2), max2);
+    half2 reg_y_0 = HALF2_GELU_OPS(reg_x_0);
+    half2 reg_y_1 = HALF2_GELU_OPS(reg_x_1);
+    half2 reg_y_2 = HALF2_GELU_OPS(reg_x_2);
+    half2 reg_y_3 = HALF2_GELU_OPS(reg_x_3);
+    HALF2(y[idx + 0]) = reg_y_0;
+    HALF2(y[idx + 2]) = reg_y_1;
+    HALF2(y[idx + 4]) = reg_y_2;
+    HALF2(y[idx + 6]) = reg_y_3;
   } else if (idx < N) {
     for (int i = idx; i < N; ++i) {
       half v = __hmin(__hmax(x[i], MIN_EXP_F16), MAX_EXP_F16);
