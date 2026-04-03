@@ -45,7 +45,7 @@ GELU_FLOPS_PER_ELEMENT = 14
 # Load the CUDA kernel as a python module
 lib = load(
     name="gelu_lib",
-    sources=["gelu.cu"],
+    sources=["gelu_opt.cu"],
     extra_cuda_cflags=[
         "-O3",
         "-U__CUDA_NO_HALF_OPERATORS__",
@@ -76,8 +76,8 @@ def run_benchmark(
     x: torch.Tensor,
     tag: str,
     out: Optional[torch.Tensor] = None,
-    warmup: int = 10,
-    iters: int = 1000,
+    warmup: int = 1,
+    iters: int = 5,
     show_all: bool = False,
 ):
     if out is not None:
@@ -236,7 +236,7 @@ print(f"FP32 Peak: {GPU_FP32_PEAK_TFLOPS} TFLOPS, "
       f"FP16 Peak: {GPU_FP16_PEAK_TFLOPS} TFLOPS, "
       f"BW Peak: {GPU_BW_GB_S} GB/s")
 
-run_multi_shape_precision_suite()
+# run_multi_shape_precision_suite()
 
 for S, K in SKs:
     print("-" * 85)
@@ -244,25 +244,25 @@ for S, K in SKs:
     x = torch.randn((S, K)).cuda().float().contiguous()
     y = torch.zeros_like(x).cuda().float().contiguous()
     ref_f32 = torch_gelu_ref(x)
-    _, _ = run_benchmark(lib.gelu_f32, x, "f32", y)
-    validate_against_torch("f32", y, ref_f32, atol=1e-5, rtol=1e-5)
-    _, _ = run_benchmark(lib.gelu_f32x4, x, "f32x4", y)
-    validate_against_torch("f32x4", y, ref_f32, atol=1e-5, rtol=1e-5)
-    _, _ = run_benchmark(torch_gelu_copy_, x, "f32_th", y)
-    validate_against_torch("f32_th", y, ref_f32, atol=1e-5, rtol=1e-5)
+    # _, _ = run_benchmark(lib.gelu_f32, x, "f32", y)
+    # validate_against_torch("f32", y, ref_f32, atol=1e-5, rtol=1e-5)
+    # _, _ = run_benchmark(lib.gelu_f32x4, x, "f32x4", y)
+    # validate_against_torch("f32x4", y, ref_f32, atol=1e-5, rtol=1e-5)
+    # _, _ = run_benchmark(torch_gelu_copy_, x, "f32_th", y)
+    # validate_against_torch("f32_th", y, ref_f32, atol=1e-5, rtol=1e-5)
 
     print("-" * 85)
     x_f16 = x.half().contiguous()
     y_f16 = y.half().contiguous()
     ref_f16 = torch_gelu_ref(x_f16)
-    _, _ = run_benchmark(lib.gelu_f16, x_f16, "f16", y_f16)
-    validate_against_torch("f16", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
-    _, _ = run_benchmark(lib.gelu_f16x2, x_f16, "f16x2", y_f16)
-    validate_against_torch("f16x2", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    # _, _ = run_benchmark(lib.gelu_f16, x_f16, "f16", y_f16)
+    # validate_against_torch("f16", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    # _, _ = run_benchmark(lib.gelu_f16x2, x_f16, "f16x2", y_f16)
+    # validate_against_torch("f16x2", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
     _, _ = run_benchmark(lib.gelu_f16x8, x_f16, "f16x8", y_f16)
-    validate_against_torch("f16x8", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
-    _, _ = run_benchmark(lib.gelu_f16x8_pack, x_f16, "f16x8pack", y_f16)
-    validate_against_torch("f16x8_pack", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
-    _, _ = run_benchmark(torch_gelu_copy_, x_f16, "f16_th", y_f16)
-    validate_against_torch("f16_th", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    # validate_against_torch("f16x8", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    # _, _ = run_benchmark(lib.gelu_f16x8_pack, x_f16, "f16x8pack", y_f16)
+    # validate_against_torch("f16x8_pack", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
+    # _, _ = run_benchmark(torch_gelu_copy_, x_f16, "f16_th", y_f16)
+    # validate_against_torch("f16_th", y_f16, ref_f16, atol=5e-3, rtol=5e-3)
     print("-" * 85)

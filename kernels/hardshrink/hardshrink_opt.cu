@@ -38,7 +38,8 @@ __device__ __forceinline__ float hardshrink(float x) {
 
 // FP16
 __device__ __forceinline__ half hardshrink_half(half x) {
-  return __hmul(x, __float2half((float)(__hgt(__habs(x), __float2half(LAMBD)))));
+  return __hmul(x,
+                __float2half((float)(__hgt(__habs(x), __float2half(LAMBD)))));
 }
 
 __device__ __forceinline__ half2 hardshrink_half2(half2 x) {
@@ -95,7 +96,8 @@ __global__ void hardshrink_f16x2_kernel(half *x, half *y, int N) {
   }
 }
 
-__global__ void hardshrink_f16x8_kernel(half __restrict__ *x, half __restrict__ *y, int N) {
+__global__ void hardshrink_f16x8_kernel(half *__restrict__ x,
+                                        half *__restrict__ y, int N) {
   int idx = 8 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 7 < N) {
     half2 reg_x_0 = HALF2(x[idx + 0]);
@@ -117,7 +119,8 @@ __global__ void hardshrink_f16x8_kernel(half __restrict__ *x, half __restrict__ 
   }
 }
 
-__global__ void hardshrink_f16x8_pack_kernel(half __restrict__ *x, half __restrict__ *y, int N) {
+__global__ void hardshrink_f16x8_pack_kernel(half *__restrict__ x,
+                                             half *__restrict__ y, int N) {
   int idx = 8 * (blockIdx.x * blockDim.x + threadIdx.x);
   if (idx + 7 < N) {
     half2 pack_x[4], pack_y[4];

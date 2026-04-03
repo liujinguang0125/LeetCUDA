@@ -261,19 +261,19 @@ The kernels listed here will guide you through a step-by-step progression, rangi
 | ✔️ [hardswish_f16x2](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|done |
 | ✔️ [hardswish_f16x8](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️|done |
 | ✔️ [hardswish_f16x8_pack](./kernels/hardswish/hardswish.cu)|f16|/|[link](./kernels/hardswish/)|⭐️⭐️| done |
-| ✔️ [hardshrink_f32](./kernels/hardshrink/hardshrink.cu)|f32|/|[link](./kernels/hardshrink/)|⭐️|
-| ✔️ [hardshrink_f32x4](./kernels/hardshrink/hardshrink.cu)|f32|/|[link](./kernels/hardshrink/)|⭐️|
-| ✔️ [hardshrink_f16](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️|
-| ✔️ [hardshrink_f16x2](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️|
-| ✔️ [hardshrink_f16x8](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️|
-| ✔️ [hardshrink_f16x8_pack](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️⭐️|
-| ✔️ [embedding_f32](./kernels/embedding/embedding.cu)|f32|/|[link](./kernels/embedding/)|⭐️|
-| ✔️ [embedding_f32x4](./kernels/embedding/embedding.cu)|f32|/|[link](./kernels/embedding/)|⭐️|
-| ✔️ [embedding_f32x4_pack](./kernels/embedding/embedding.cu)|f32|/|[link](./kernels/embedding/)|⭐️|
-| ✔️ [embedding_f16](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️|
-| ✔️ [embedding_f16x2](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️|
-| ✔️ [embedding_f16x8](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️|
-| ✔️ [embedding_f16x8_pack](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️⭐️|
+| ✔️ [hardshrink_f32](./kernels/hardshrink/hardshrink.cu)|f32|/|[link](./kernels/hardshrink/)|⭐️| done |
+| ✔️ [hardshrink_f32x4](./kernels/hardshrink/hardshrink.cu)|f32|/|[link](./kernels/hardshrink/)|⭐️| done |
+| ✔️ [hardshrink_f16](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️| done |
+| ✔️ [hardshrink_f16x2](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️| done |
+| ✔️ [hardshrink_f16x8](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️| done |
+| ✔️ [hardshrink_f16x8_pack](./kernels/hardshrink/hardshrink.cu)|f16|/|[link](./kernels/hardshrink/)|⭐️⭐️| done|
+| ✔️ [embedding_f32](./kernels/embedding/embedding.cu)|f32|/|[link](./kernels/embedding/)|⭐️| done |
+| ✔️ [embedding_f32x4](./kernels/embedding/embedding.cu)|f32|/|[link](./kernels/embedding/)|⭐️| done |
+| ✔️ [embedding_f32x4_pack](./kernels/embedding/embedding.cu)|f32|/|[link](./kernels/embedding/)|⭐️| done |
+| ✔️ [embedding_f16](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️| done |
+| ✔️ [embedding_f16x2](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️| done |
+| ✔️ [embedding_f16x8](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️| done |
+| ✔️ [embedding_f16x8_pack](./kernels/embedding/embedding.cu)|f16|/|[link](./kernels/embedding/)|⭐️⭐️| done |
 | ✔️ [mat_trans_f32_col2row{2d}](./kernels/mat-transpose/mat_transpose.cu)|f32|/|[link](./kernels/mat-transpose/)|⭐️|
 | ✔️ [mat_trans_f32_row2col{2d}](./kernels/mat-transpose/mat_transpose.cu)|f32|/|[link](./kernels/mat-transpose/)|⭐️|
 | ✔️ [mat_trans_f32_diagonal2d](./kernels/mat-transpose/mat_transpose.cu)|f32|/|[link](./kernels/mat-transpose/)|⭐️⭐️|

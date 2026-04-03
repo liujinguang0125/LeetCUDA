@@ -11,71 +11,131 @@
 #include <vector>
 
 #define FLOAT4(value) (reinterpret_cast<float4 *>(&(value))[0])
+#define HALF2(value) (reinterpret_cast<half2 *>(&(value))[0])
 #define LDST128BITS(value) (reinterpret_cast<float4 *>(&(value))[0])
+#define LDGST128BITS(value) (reinterpret_cast<const float4 *>(&(value)))
 
-__global__ void embedding_f32_kernel(const int *idx, float *weight,
-                                     float *output, int n, int emb_size) {
+__global__ void embedding_f32_kernel(const int *__restrict__ idx,
+                                     const float *__restrict__ weight,
+                                     float *__restrict__ output, int n,
+                                     int emb_size) {
   int tx = threadIdx.x;
   int bx = blockIdx.x;
-  int tid = bx * blockDim.x + tx;
-  int offset = idx[bx] * emb_size;
-  output[bx * emb_size + tx] = weight[offset + tx];
+  // int tid = bx * blockDim.x + tx;
+  if (tx < emb_size) {
+    int offset = idx[bx] * emb_size;
+    output[bx * emb_size + tx] = weight[offset + tx];
+  }
 }
 
-__global__ void embedding_f32x4_kernel(const int *idx, float *weight,
-                                       float *output, int n, int emb_size) {
+__global__ void embedding_f32x4_kernel(const int *__restrict__ idx,
+                                       const float *__restrict__ weight,
+                                       float *__restrict__ output, int n,
+                                       int emb_size) {
   int tx = threadIdx.x * 4;
   int bx = blockIdx.x;
   int offset = idx[bx] * emb_size;
-  output[bx * emb_size + tx] = weight[offset + tx];
-  output[bx * emb_size + tx + 1] = weight[offset + tx + 1];
-  output[bx * emb_size + tx + 2] = weight[offset + tx + 2];
-  output[bx * emb_size + tx + 3] = weight[offset + tx + 3];
+  int out_base = bx * emb_size;
+  if (tx + 3 < emb_size) {
+    float pack_x[4];
+    pack_x[0] = weight[offset + tx];
+    pack_x[1] = weight[offset + tx + 1];
+    pack_x[2] = weight[offset + tx + 2];
+    pack_x[3] = weight[offset + tx + 3];
+
+    output[out_base + tx] = pack_x[0];
+    output[out_base + tx + 1] = pack_x[1];
+    output[out_base + tx + 2] = pack_x[2];
+    output[out_base + tx + 3] = pack_x[3];
+  } else {
+    for (int i = tx; i < emb_size; ++i) {
+      output[out_base + i] = weight[offset + i];
+    }
+  }
 }
 
-__global__ void embedding_f32x4_pack_kernel(const int *idx, float *weight,
-                                            float *output, int n,
+__global__ void embedding_f32x4_pack_kernel(const int *__restrict__ idx,
+                                            const float *__restrict__ weight,
+                                            float *__restrict__ output, int n,
                                             int emb_size) {
   int tx = threadIdx.x;
   int bx = blockIdx.x;
-  int tid = bx * blockDim.x + tx;
   int offset = idx[bx] * emb_size;
-  LDST128BITS(output[bx * emb_size + 4 * tx]) =
-      LDST128BITS(weight[offset + 4 * tx]);
+  int out_base = bx * emb_size;
+  int ex = 4 * tx;
+  if (ex + 3 < emb_size) {
+    LDST128BITS(output[out_base + ex]) = __ldg(LDGST128BITS(weight[offset + ex]));
+  } else {
+    for (int i = ex; i < emb_size; ++i) {
+      output[out_base + i] = weight[offset + i];
+    }
+  }
 }
 
-__global__ void embedding_f16_kernel(const int *idx, half *weight, half *output,
-                                     int n, int emb_size) {
+__global__ void embedding_f16_kernel(const int *__restrict__ idx,
+                                     const half *__restrict__ weight,
+                                     half *__restrict__ output, int n,
+                                     int emb_size) {
   int tx = threadIdx.x;
   int bx = blockIdx.x;
-  int tid = bx * blockDim.x + tx;
-  int offset = idx[bx] * emb_size;
-  output[bx * emb_size + tx] = weight[offset + tx];
+  if (tx < emb_size) {
+    int offset = idx[bx] * emb_size;
+    output[bx * emb_size + tx] = weight[offset + tx];
+  }
 }
 
-__global__ void embedding_f16x8_kernel(const int *idx, half *weight,
-                                       half *output, int n, int emb_size) {
+__global__ void embedding_f16x8_kernel(const int *__restrict__ idx,
+                                      half *__restrict__ weight,
+                                       half *__restrict__ output, int n,
+                                       int emb_size) {
   int tx = threadIdx.x * 8;
   int bx = blockIdx.x;
   int offset = idx[bx] * emb_size;
-  output[bx * emb_size + tx] = weight[offset + tx];
-  output[bx * emb_size + tx + 1] = weight[offset + tx + 1];
-  output[bx * emb_size + tx + 2] = weight[offset + tx + 2];
-  output[bx * emb_size + tx + 3] = weight[offset + tx + 3];
-  output[bx * emb_size + tx + 4] = weight[offset + tx + 4];
-  output[bx * emb_size + tx + 5] = weight[offset + tx + 5];
-  output[bx * emb_size + tx + 6] = weight[offset + tx + 6];
-  output[bx * emb_size + tx + 7] = weight[offset + tx + 7];
+  int out_base = bx * emb_size;
+
+  if (tx + 7 < emb_size) {
+    half2 pack_x[4];
+    pack_x[0] = HALF2(weight[offset + tx]);
+    pack_x[1] = HALF2(weight[offset + tx + 2]);
+    pack_x[2] = HALF2(weight[offset + tx + 4]);
+    pack_x[3] = HALF2(weight[offset + tx + 6]);
+
+    HALF2(output[out_base + tx]) = pack_x[0];
+    HALF2(output[out_base + tx + 2]) = pack_x[1];
+    HALF2(output[out_base + tx + 4]) = pack_x[2];
+    HALF2(output[out_base + tx + 6]) = pack_x[3];
+
+    // output[out_base + tx] = weight[offset + tx];
+    // output[out_base + tx + 1] = weight[offset + tx + 1];
+    // output[out_base + tx + 2] = weight[offset + tx + 2];
+    // output[out_base + tx + 3] = weight[offset + tx + 3];
+    // output[out_base + tx + 4] = weight[offset + tx + 4];
+    // output[out_base + tx + 5] = weight[offset + tx + 5];
+    // output[out_base + tx + 6] = weight[offset + tx + 6];
+    // output[out_base + tx + 7] = weight[offset + tx + 7];
+  } else {
+    for (int i = tx; i < emb_size; ++i) {
+      output[out_base + i] = weight[offset + i];
+    }
+  }
 }
 
-__global__ void embedding_f16x8_pack_kernel(const int *idx, half *weight,
-                                            half *output, int n, int emb_size) {
+__global__ void embedding_f16x8_pack_kernel(const int *__restrict__ idx,
+                                            const half *__restrict__ weight,
+                                            half *__restrict__ output, int n,
+                                            int emb_size) {
   int tx = threadIdx.x;
   int bx = blockIdx.x;
-  int tid = bx * blockDim.x + tx;
   int offset = idx[bx] * emb_size;
-  LDST128BITS(output[bx * emb_size + 8 * tx]) =
-      LDST128BITS(weight[offset + 8 * tx]);
+  int out_base = bx * emb_size;
+  int ex = 8 * tx;
+  if (ex + 7 < emb_size) {
+    LDST128BITS(output[out_base + ex]) = __ldg(LDGST128BITS(weight[offset + ex]));
+  } else {
+    for (int i = ex; i < emb_size; ++i) {
+      output[out_base + i] = weight[offset + i];
+    }
+  }
 }
 
 #define STRINGFY(str) #str
